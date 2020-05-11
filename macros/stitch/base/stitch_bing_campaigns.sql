@@ -11,7 +11,7 @@ select
 
     id as campaign_id,
     name,
-    description,
+    -- coalesce(description,null) as description
     status,
     timezone,
     biddingscheme as bidding_scheme,

@@ -19,7 +19,7 @@ select
     displayurl as display_url,
     finalurls as final_urls,    
     destinationurl as destination_url,
-    urlcustomparameters as url_custom_parameters,
+    -- urlcustomparameters as url_custom_parameters,
     devicepreference as device_preference,
     editorialstatus as editorial_status,
     adformatpreference as ad_format_preference,
