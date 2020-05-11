@@ -18,8 +18,8 @@ select
     budgettype as budget_type,
     campaigntype as campaign_type,
     dailybudget as daily_budget,
-    trackingurltemplate as tracking_url_template,
-    urlcustomparameters as url_custom_parameters
+    -- trackingurltemplate as tracking_url_template,
+    -- urlcustomparameters as url_custom_parameters
 
 from {{var('bing_campaigns_table')}}
 
