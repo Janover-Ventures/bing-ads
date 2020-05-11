@@ -100,8 +100,7 @@ renamed as (
     
         "__SDC_PRIMARY_KEY" as keyword_performance_report_id,
 
-        convert_timezone('UTC', timeperiod)::timestamp_ntz::date 
-            as campaign_date,
+        datetime(timeperiod, 'UTC') as campaign_date,
             
         accountid as account_id,
         adgroupid as ad_group_id,
