@@ -122,7 +122,7 @@ renamed as (
         spend,
         
         rank() over (
-            partition by timeperiod::date 
+            partition by timeperiod
             order by _sdc_report_datetime desc
             ) as rank
 
