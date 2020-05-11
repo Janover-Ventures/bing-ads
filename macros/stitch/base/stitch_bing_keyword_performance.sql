@@ -8,7 +8,7 @@
 
 with source as (
 
-    select * from {{var('keyword_performance_report_table')}}
+    select * from {{var('bing_keyword_performance_report_table')}}
     
 ),
 

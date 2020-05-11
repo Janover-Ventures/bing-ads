@@ -28,6 +28,6 @@ select
     lastmodifiedbyuserid as last_modified_by_user_id,
     lastmodifiedtime as last_modified_time
     
-from {{var('accounts_table')}}
+from {{var('bing_accounts_table')}}
 
 {% endmacro %}
