@@ -113,7 +113,7 @@ renamed as (
         campaignstatus as campaign_status,
         
         replace(
-            concat(coalesce(destinationurl, ''), coalesce(finalurl, '')),
+            coalesce(finalurl, ''),
             '%20', ' '
             ) as url,
         
@@ -122,7 +122,7 @@ renamed as (
         spend,
         
         rank() over (
-            partition by timeperiod
+            partition by timeperiodg
             order by _sdc_report_datetime desc
             ) as rank
 
