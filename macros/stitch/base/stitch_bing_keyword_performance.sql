@@ -95,10 +95,10 @@ FROM
     renamed AS (
         SELECT
             "__SDC_PRIMARY_KEY" AS keyword_performance_report_id,
-            {{ dbt_utils.date_trunc(
-                'day',
-                'timeperiod'
-            ) }} AS campaign_date,
+            DATE(
+                timeperiod,
+                'UTC'
+            ) AS campaign_date,
             accountid AS account_id,
             adgroupid AS ad_group_id,
             adgroupname AS ad_group_name,
