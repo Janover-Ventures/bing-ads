@@ -1,168 +1,169 @@
 {% macro stitch_bing_keyword_performance() %}
-
     {{ adapter_macro('bing_ads.stitch_bing_keyword_performance') }}
-
 {% endmacro %}
 
 {% macro default__stitch_bing_keyword_performance() %}
-
-with source as (
-
-    select * from {{var('bing_keyword_performance_report_table')}}
-    
-),
-
-renamed as (
-
-    select
-    
-        "__SDC_PRIMARY_KEY" as keyword_performance_report_id,
-
-        convert_timezone('UTC', timeperiod)::timestamp_ntz::date 
-            as campaign_date,
-            
-        accountid as account_id,
-        adgroupid as ad_group_id,
-        adgroupname as ad_group_name,
-        adid as ad_id,
-        campaignid as campaign_id,
-        campaignname as campaign_name,
-        keywordid as keyword_id,
-        
-        campaignstatus as campaign_status,
-        
-        replace(
-            coalesce(destinationurl, '') || coalesce(finalurl, ''),
-            '%20', ' '
-            ) as url,
-        
-        clicks,
-        impressions,
-        spend,
-        
-        rank() over (
-            partition by timeperiod::date 
-            order by _sdc_report_datetime desc
-            ) as rank
-
-    from source
-
-),
-
-parsed as (
-
-    select
-    
-        keyword_performance_report_id,
-        campaign_date,
-        keyword_id,
-        account_id,
-        ad_group_id,
-        ad_group_name,
-        ad_id,
-        campaign_id,
-        campaign_name,
-        campaign_status,
-        
-        url,
-        {{ dbt_utils.get_url_host('url') }} as url_host,
-        '/' || {{ dbt_utils.get_url_path('url') }} as url_path,
-        {{ dbt_utils.get_url_parameter('url', 'utm_source') }} as utm_source,
-        {{ dbt_utils.get_url_parameter('url', 'utm_medium') }} as utm_medium,
-        {{ dbt_utils.get_url_parameter('url', 'utm_campaign') }} as utm_campaign,
-        {{ dbt_utils.get_url_parameter('url', 'utm_content') }} as utm_content,
-        {{ dbt_utils.get_url_parameter('url', 'utm_term') }} as utm_term,
-        
-        clicks,
-        impressions,
-        spend
-        
-    from renamed
-    where rank = 1
-
-)
-
-select * from parsed
-
+    WITH source AS (
+        SELECT
+            *
+        FROM
+            {{ var('bing_keyword_performance_report_table') }}
+    ),
+    renamed AS (
+        SELECT
+            "__SDC_PRIMARY_KEY" AS keyword_performance_report_id,
+            CONVERT_TIMEZONE(
+                'UTC',
+                timeperiod
+            ) :: timestamp_ntz :: DATE AS campaign_date,
+            accountid AS account_id,
+            adgroupid AS ad_group_id,
+            adgroupname AS ad_group_name,
+            adid AS ad_id,
+            campaignid AS campaign_id,
+            campaignname AS campaign_name,
+            keywordid AS keyword_id,
+            campaignstatus AS campaign_status,
+            REPLACE(COALESCE(destinationurl, '') || COALESCE(finalurl, ''), '%20', ' ') AS url,
+            clicks,
+            impressions,
+            spend,
+            RANK() over (
+                PARTITION BY timeperiod :: DATE
+                ORDER BY
+                    _sdc_report_datetime DESC
+            ) AS RANK
+        FROM
+            source
+    ),
+    parsed AS (
+        SELECT
+            keyword_performance_report_id,
+            campaign_date,
+            keyword_id,
+            account_id,
+            ad_group_id,
+            ad_group_name,
+            ad_id,
+            campaign_id,
+            campaign_name,
+            campaign_status,
+            url,
+            {{ dbt_utils.get_url_host('url') }} AS url_host,
+            '/' || {{ dbt_utils.get_url_path('url') }} AS url_path,
+            {{ dbt_utils.get_url_parameter(
+                'url',
+                'utm_source'
+            ) }} AS utm_source,
+            {{ dbt_utils.get_url_parameter(
+                'url',
+                'utm_medium'
+            ) }} AS utm_medium,
+            {{ dbt_utils.get_url_parameter(
+                'url',
+                'utm_campaign'
+            ) }} AS utm_campaign,
+            {{ dbt_utils.get_url_parameter(
+                'url',
+                'utm_content'
+            ) }} AS utm_content,
+            {{ dbt_utils.get_url_parameter(
+                'url',
+                'utm_term'
+            ) }} AS utm_term,
+            clicks,
+            impressions,
+            spend
+        FROM
+            renamed
+        WHERE
+            RANK = 1
+    )
+SELECT
+    *
+FROM
+    parsed
 {% endmacro %}
 
 {% macro bigquery__stitch_bing_keyword_performance() %}
-
-with source as (
-
-    select * from {{var('bing_keyword_performance_report_table')}}
-    
-),
-
-renamed as (
-
-    select
-    
-        "__SDC_PRIMARY_KEY" as keyword_performance_report_id,
-
-        datetime(timeperiod, 'UTC') as campaign_date,
-            
-        accountid as account_id,
-        adgroupid as ad_group_id,
-        adgroupname as ad_group_name,
-        adid as ad_id,
-        campaignid as campaign_id,
-        campaignname as campaign_name,
-        keywordid as keyword_id,
-        
-        campaignstatus as campaign_status,
-        
-        replace(
-            coalesce(finalurl, ''),
-            '%20', ' '
-            ) as url,
-        
-        clicks,
-        impressions,
-        spend,
-        
-        rank() over (
-            partition by timeperiod
-            order by _sdc_report_datetime desc
-            ) as rank
-
-    from source
-
-),
-
-parsed as (
-
-    select
-    
-        keyword_performance_report_id,
-        campaign_date,
-        keyword_id,
-        account_id,
-        ad_group_id,
-        ad_group_name,
-        ad_id,
-        campaign_id,
-        campaign_name,
-        campaign_status,
-        
-        url,
-        {{ dbt_utils.get_url_host('url') }} as url_host,
-        concat('/', {{ dbt_utils.get_url_path('url') }}) as url_path,
-        {{ dbt_utils.get_url_parameter('url', 'utm_source') }} as utm_source,
-        {{ dbt_utils.get_url_parameter('url', 'utm_medium') }} as utm_medium,
-        {{ dbt_utils.get_url_parameter('url', 'utm_campaign') }} as utm_campaign,
-        {{ dbt_utils.get_url_parameter('url', 'utm_content') }} as utm_content,
-        {{ dbt_utils.get_url_parameter('url', 'utm_term') }} as utm_term,
-        
-        clicks,
-        impressions,
-        spend
-        
-    from renamed
-    where rank = 1
-
-)
-
-select * from parsed
-
+    WITH source AS (
+        SELECT
+            *
+        FROM
+            {{ var('bing_keyword_performance_report_table') }}
+    ),
+    renamed AS (
+        SELECT
+            "__SDC_PRIMARY_KEY" AS keyword_performance_report_id,
+            {{ dbt_utils.date_trunc(
+                'day',
+                'timeperiod'
+            ) }} AS campaign_date,
+            accountid AS account_id,
+            adgroupid AS ad_group_id,
+            adgroupname AS ad_group_name,
+            adid AS ad_id,
+            campaignid AS campaign_id,
+            campaignname AS campaign_name,
+            keywordid AS keyword_id,
+            campaignstatus AS campaign_status,
+            REPLACE(COALESCE(finalurl, ''), '%20', ' ') AS url,
+            clicks,
+            impressions,
+            spend,
+            RANK() over (
+                PARTITION BY timeperiod
+                ORDER BY
+                    _sdc_report_datetime DESC
+            ) AS RANK
+        FROM
+            source
+    ),
+    parsed AS (
+        SELECT
+            keyword_performance_report_id,
+            campaign_date,
+            keyword_id,
+            account_id,
+            ad_group_id,
+            ad_group_name,
+            ad_id,
+            campaign_id,
+            campaign_name,
+            campaign_status,
+            url,
+            {{ dbt_utils.get_url_host('url') }} AS url_host,
+            CONCAT('/', {{ dbt_utils.get_url_path('url') }}) AS url_path,
+            {{ dbt_utils.get_url_parameter(
+                'url',
+                'utm_source'
+            ) }} AS utm_source,
+            {{ dbt_utils.get_url_parameter(
+                'url',
+                'utm_medium'
+            ) }} AS utm_medium,
+            {{ dbt_utils.get_url_parameter(
+                'url',
+                'utm_campaign'
+            ) }} AS utm_campaign,
+            {{ dbt_utils.get_url_parameter(
+                'url',
+                'utm_content'
+            ) }} AS utm_content,
+            {{ dbt_utils.get_url_parameter(
+                'url',
+                'utm_term'
+            ) }} AS utm_term,
+            clicks,
+            impressions,
+            spend
+        FROM
+            renamed
+        WHERE
+            RANK = 1
+    )
+SELECT
+    *
+FROM
+    parsed
 {% endmacro %}
