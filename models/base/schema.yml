@@ -33,5 +33,4 @@ models:
     columns:
         - name: keyword_performance_report_id
           tests:
-              - unique
               - not_null
